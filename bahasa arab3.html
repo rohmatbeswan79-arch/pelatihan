@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>Urutkan Kata Bahasa Arab</title>
+<style>
+  body {
+    background-color: #006400; /* hijau tua */
+    font-family: 'Scheherazade', serif;
+    color: #000;
+    text-align: center;
+    padding: 30px;
+  }
+
+  .container {
+    background-color: #90EE90; /* hijau muda */
+    border-radius: 15px;
+    padding: 20px;
+    max-width: 700px;
+    margin: auto;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  }
+
+  h2 {
+    color: #003300;
+  }
+
+  .word-bank, .text-area {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 15px 0;
+  }
+
+  .word {
+    background-color: white;
+    border: 2px solid #006400;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: grab;
+    font-size: 24px;
+  }
+
+  .word.dragging {
+    opacity: 0.5;
+  }
+
+  .text-area {
+    background-color: white;
+    min-height: 100px;
+    border: 2px dashed #006400;
+    border-radius: 10px;
+    padding: 10px;
+  }
+
+  button {
+    background-color: #006400;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 10px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #004d00;
+  }
+
+  #feedback {
+    font-weight: bold;
+    font-size: 20px;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>🔠 Susun Kata Bahasa Arab dengan Benar</h2>
+  <p>Seret dan jatuhkan kata ke area kosong sesuai urutan yang benar.</p>
+
+  <div id="wordBank" class="word-bank"></div>
+
+  <div id="dropArea" class="text-area" ondragover="allowDrop(event)" ondrop="drop(event)">
+    <p style="color:#777;">(Letakkan kata di sini)</p>
+  </div>
+
+  <button onclick="checkAnswer()">Hasil</button>
+  <button onclick="resetGame()">Reset</button>
+
+  <div id="feedback"></div>
+</div>
+
+<script>
+  const correctOrder = ["أنا", "أذهب", "إلى", "المدرسة"];
+  let words = [...correctOrder];
+  
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
+
+  shuffle(words);
+
+  const wordBank = document.getElementById("wordBank");
+  const dropArea = document.getElementById("dropArea");
+
+  function renderWords() {
+    wordBank.innerHTML = "";
+    words.forEach((word, index) => {
+      const span = document.createElement("div");
+      span.className = "word";
+      span.textContent = word;
+      span.draggable = true;
+      span.id = "word-" + index;
+      span.ondragstart = drag;
+      wordBank.appendChild(span);
+    });
+  }
+
+  function drag(event) {
+    event.dataTransfer.setData("text", event.target.id);
+    event.target.classList.add("dragging");
+  }
+
+  function allowDrop(event) {
+    event.preventDefault();
+  }
+
+  function drop(event) {
+    event.preventDefault();
+    const wordId = event.dataTransfer.getData("text");
+    const wordElem = document.getElementById(wordId);
+    dropArea.appendChild(wordElem);
+    wordElem.classList.remove("dragging");
+    wordElem.draggable = false;
+    wordElem.style.cursor = "default";
+  }
+
+  function checkAnswer() {
+    const droppedWords = Array.from(dropArea.children)
+      .filter(el => el.classList.contains("word"))
+      .map(el => el.textContent.trim());
+
+    const feedback = document.getElementById("feedback");
+    if (JSON.stringify(droppedWords) === JSON.stringify(correctOrder)) {
+      feedback.textContent = "🌟 Hebat! Jawaban Anda Benar 🌟";
+      feedback.style.color = "green";
+    } else {
+      feedback.textContent = "❌ Maaf, jawaban Anda salah. Ulangi lagi!";
+      feedback.style.color = "red";
+    }
+  }
+
+  function resetGame() {
+    shuffle(words);
+    renderWords();
+    dropArea.innerHTML = "<p style='color:#777;'>(Letakkan kata di sini)</p>";
+    document.getElementById("feedback").textContent = "";
+  }
+
+  renderWords();
+</script>
+
+</body>
+</html>
