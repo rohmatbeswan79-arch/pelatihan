@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>Urutkan Kata Bahasa Arab</title>
+  <style>
+    body {
+      background-color: #064420; /* hijau tua */
+      font-family: 'Scheherazade', serif;
+      text-align: center;
+      color: white;
+      direction: rtl;
+    }
+
+    h1 {
+      color: #ffffff;
+    }
+
+    .container {
+      background-color: #b8e994; /* hijau muda */
+      width: 80%;
+      margin: auto;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0px 0px 10px #333;
+    }
+
+    .word-bank {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .word {
+      background-color: #fff;
+      color: #000;
+      border-radius: 8px;
+      padding: 10px 15px;
+      cursor: grab;
+      font-size: 24px;
+      user-select: none;
+    }
+
+    .drop-area {
+      background-color: #fff; /* teks area putih */
+      color: #000;
+      min-height: 80px;
+      width: 90%;
+      margin: auto;
+      border: 2px dashed #333;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 24px;
+    }
+
+    .buttons {
+      margin-top: 20px;
+    }
+
+    button {
+      background-color: #2d6a4f;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    button:hover {
+      background-color: #1b4332;
+    }
+
+    #feedback {
+      margin-top: 15px;
+      font-size: 22px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🔹 Urutkan Kata Bahasa Arab 🔹</h1>
+
+  <div class="container">
+    <p>Silakan urutkan kata-kata berikut agar menjadi kalimat yang benar:</p>
+    <div id="wordBank" class="word-bank"></div>
+
+    <div id="dropArea" class="drop-area" ondragover="allowDrop(event)" ondrop="dropWord(event)">
+      Tarik dan letakkan kata di sini ⬇️
+    </div>
+
+    <div class="buttons">
+      <button onclick="cekJawaban()">Hasil</button>
+      <button onclick="resetGame()">Reset</button>
+    </div>
+
+    <div id="feedback"></div>
+  </div>
+
+  <script>
+    // Daftar kata dalam Bahasa Arab
+    const correctOrder = ["أنا", "أذهب", "إلى", "المدرسة"];
+    let words = [...correctOrder];
+
+    // Fungsi acak urutan kata
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    // Render kata acak
+    function renderWords() {
+      const wordBank = document.getElementById("wordBank");
+      wordBank.innerHTML = "";
+      shuffle(words).forEach((word, index) => {
+        const span = document.createElement("div");
+        span.className = "word";
+        span.textContent = word;
+        span.draggable = true;
+        span.id = "word" + index;
+        span.ondragstart = dragWord;
+        wordBank.appendChild(span);
+      });
+    }
+
+    // Fungsi drag & drop
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function dragWord(ev) {
+      ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+    function dropWord(ev) {
+      ev.preventDefault();
+      const id = ev.dataTransfer.getData("text");
+      const wordElement = document.getElementById(id);
+      const dropArea = document.getElementById("dropArea");
+
+      if (wordElement) {
+        dropArea.appendChild(wordElement);
+        wordElement.style.cursor = "default";
+      }
+    }
+
+    // Cek hasil urutan
+    function cekJawaban() {
+      const dropArea = document.getElementById("dropArea");
+      const droppedWords = Array.from(dropArea.children).map(el => el.textContent.trim());
+      const feedback = document.getElementById("feedback");
+
+      if (JSON.stringify(droppedWords) === JSON.stringify(correctOrder)) {
+        feedback.style.color = "green";
+        feedback.textContent = "🌟 Hebat! Jawaban Anda benar!";
+      } else {
+        feedback.style.color = "red";
+        feedback.textContent = "❌ Maaf, jawaban Anda salah. Ulangi lagi.";
+      }
+    }
+
+    // Reset permainan
+    function resetGame() {
+      document.getElementById("dropArea").innerHTML = "Tarik dan letakkan kata di sini ⬇️";
+      document.getElementById("feedback").textContent = "";
+      renderWords();
+    }
+
+    // Jalankan saat halaman dimuat
+    window.onload = renderWords;
+  </script>
+
+</body>
+</html>
