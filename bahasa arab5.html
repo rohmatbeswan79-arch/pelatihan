@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Urutkan Kata Bahasa Arab</title>
+<style>
+  body {
+    background-color: #064e3b; /* hijau tua */
+    font-family: 'Scheherazade New', serif;
+    color: #fff;
+    text-align: center;
+    direction: rtl;
+  }
+  .container {
+    background-color: #a7f3d0; /* hijau muda */
+    border-radius: 20px;
+    padding: 20px;
+    width: 80%;
+    margin: 30px auto;
+    box-shadow: 0 0 10px #000;
+  }
+  .word-box {
+    display: inline-block;
+    background-color: #fff;
+    color: #000;
+    border-radius: 10px;
+    padding: 10px 15px;
+    margin: 10px;
+    cursor: grab;
+    font-size: 28px;
+  }
+  textarea {
+    width: 90%;
+    height: 100px;
+    background-color: #fff;
+    color: #000;
+    font-size: 26px;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: right;
+    direction: rtl;
+  }
+  button {
+    background-color: #065f46;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    margin: 10px;
+    cursor: pointer;
+    font-size: 18px;
+  }
+  button:hover {
+    background-color: #047857;
+  }
+  #feedback {
+    font-size: 24px;
+    margin-top: 20px;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>🕌 Urutkan Kata Bahasa Arab 🕌</h2>
+  <p>Susun kata-kata berikut agar membentuk kalimat yang benar:</p>
+
+  <div id="wordsContainer"></div>
+
+  <h3>Tarik kata ke kotak di bawah ini:</h3>
+  <textarea id="answerArea" placeholder="Letakkan kata di sini..." ondrop="drop(event)" ondragover="allowDrop(event)"></textarea>
+
+  <div>
+    <button onclick="checkAnswer()">Hasil</button>
+    <button onclick="resetGame()">Reset</button>
+  </div>
+
+  <div id="feedback"></div>
+</div>
+
+<script>
+const correctSentence = ["أنا", "أذهب", "إلى", "المدرسة"];
+let words = [...correctSentence];
+
+// Fungsi acak kata
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+// Tampilkan kata acak
+function displayWords() {
+  const container = document.getElementById('wordsContainer');
+  container.innerHTML = '';
+  shuffle(words).forEach((word, index) => {
+    const span = document.createElement('span');
+    span.className = 'word-box';
+    span.textContent = word;
+    span.draggable = true;
+    span.id = 'word-' + index;
+    span.ondragstart = drag;
+    container.appendChild(span);
+  });
+}
+
+// Drag & Drop
+function allowDrop(ev) {
+  ev.preventDefault();
+}
+
+function drag(ev) {
+  ev.dataTransfer.setData("text", ev.target.id);
+}
+
+function drop(ev) {
+  ev.preventDefault();
+  const data = ev.dataTransfer.getData("text");
+  const draggedElement = document.getElementById(data);
+  if (draggedElement) {
+    document.getElementById("answerArea").value += draggedElement.textContent + " ";
+    draggedElement.style.display = "none"; // Hilangkan kata yang sudah dipindah
+  }
+}
+
+// Cek jawaban
+function checkAnswer() {
+  const userAnswer = document.getElementById('answerArea').value.trim().split(" ").filter(Boolean);
+  const feedback = document.getElementById('feedback');
+  if (JSON.stringify(userAnswer) === JSON.stringify(correctSentence)) {
+    feedback.textContent = "🌟 Hebat! Jawaban Anda benar! 🌟";
+    feedback.style.color = "yellow";
+  } else {
+    feedback.textContent = "❌ Maaf, jawaban Anda salah. Ulangi lagi!";
+    feedback.style.color = "red";
+  }
+}
+
+// Reset
+function resetGame() {
+  document.getElementById('answerArea').value = "";
+  document.getElementById('feedback').textContent = "";
+  displayWords();
+}
+
+// Inisialisasi awal
+displayWords();
+</script>
+
+</body>
+</html>
