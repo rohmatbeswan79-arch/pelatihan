@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Urutkan Kata Bahasa Inggris</title>
+<style>
+    body {
+        background-color: #004d00; /* hijau tua */
+        font-family: Arial, sans-serif;
+        text-align: center;
+        color: white;
+        margin-top: 40px;
+    }
+
+    .container {
+        background-color: #90EE90; /* hijau muda */
+        display: inline-block;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0px 0px 10px rgba(0,0,0,0.3);
+    }
+
+    .word-box {
+        display: inline-block;
+        margin: 5px;
+        padding: 10px 15px;
+        background-color: white;
+        color: black;
+        border-radius: 8px;
+        cursor: grab;
+        font-weight: bold;
+    }
+
+    textarea {
+        width: 90%;
+        height: 70px;
+        margin-top: 20px;
+        border-radius: 10px;
+        border: none;
+        background-color: white;
+        color: black;
+        font-size: 16px;
+        padding: 10px;
+        resize: none;
+    }
+
+    button {
+        margin: 10px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 10px;
+        background-color: #006400;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #228B22;
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h2>Urutkan Kata Bahasa Inggris!</h2>
+        <p>Seret kata-kata berikut ke area teks untuk membentuk kalimat yang benar:</p>
+        <div id="wordContainer"></div>
+        <br>
+        <textarea id="answerArea" placeholder="Tarik kata ke sini..." ondrop="drop(event)" ondragover="allowDrop(event)"></textarea>
+        <br>
+        <button onclick="checkAnswer()">Hasil</button>
+        <button onclick="resetGame()">Reset</button>
+        <p id="feedback"></p>
+    </div>
+
+<script>
+    const correctAnswer = "I am going to the market";
+    let words = ["I", "am", "going", "to", "the", "market"];
+
+    function shuffle(array) {
+        return array.sort(() => Math.random() - 0.5);
+    }
+
+    function displayWords() {
+        const container = document.getElementById("wordContainer");
+        container.innerHTML = "";
+        shuffle(words).forEach(word => {
+            const span = document.createElement("span");
+            span.textContent = word;
+            span.className = "word-box";
+            span.draggable = true;
+            span.ondragstart = drag;
+            container.appendChild(span);
+        });
+    }
+
+    function allowDrop(event) {
+        event.preventDefault();
+    }
+
+    function drag(event) {
+        event.dataTransfer.setData("text", event.target.textContent);
+        event.target.style.opacity = "0.5";
+    }
+
+    function drop(event) {
+        event.preventDefault();
+        const word = event.dataTransfer.getData("text");
+        const textarea = document.getElementById("answerArea");
+        textarea.value += (textarea.value ? " " : "") + word;
+        // hilangkan kata yang sudah dipakai
+        const boxes = document.querySelectorAll(".word-box");
+        boxes.forEach(box => {
+            if (box.textContent === word && box.style.opacity === "0.5") {
+                box.remove();
+            }
+        });
+    }
+
+    function checkAnswer() {
+        const userAnswer = document.getElementById("answerArea").value.trim();
+        const feedback = document.getElementById("feedback");
+        if (userAnswer === correctAnswer) {
+            feedback.textContent = "Hebat! Jawaban Anda benar ✅";
+        } else {
+            feedback.textContent = "Maaf, jawaban Anda salah. Ulangi lagi ❌";
+        }
+    }
+
+    function resetGame() {
+        document.getElementById("answerArea").value = "";
+        document.getElementById("feedback").textContent = "";
+        displayWords();
+    }
+
+    // Tampilkan kata pertama kali
+    displayWords();
+</script>
+</body>
+</html>
