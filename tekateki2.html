@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TEKA-TEKI</title>
+  <style>
+    body{font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background: #065f46; color:#0f172a; display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0}
+    .card{background:#a7f3d0; padding:28px; border-radius:12px; box-shadow:0 8px 30px rgba(2,6,23,0.08); width:min(640px,92%)}
+    h1{margin:0 0 14px 0; font-size:28px; letter-spacing:1px}
+    p{line-height:1.5}
+    .input-row{display:flex; gap:8px; margin-top:14px}
+    input[type=text]{flex:1; padding:10px 12px; border-radius:8px; border:1px solid #e2e8f0; font-size:16px; background:white}
+    button{padding:10px 14px; border-radius:8px; border:0; background:#0ea5a9; color:white; font-weight:600; cursor:pointer}
+    button:active{transform:translateY(1px)}
+    .feedback{margin-top:12px; font-weight:600}
+    .correct{color:#047857}
+    .wrong{color:#b91c1c}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>TEKA-TEKI</h1>
+
+    <p>
+      "Aku adalah seekor hewan. Jumlah kakiku ada empat buah. Aku memiliki ekor. Aku juga memiliki belalai. Siapakah aku?"
+    </p>
+
+    <div class="input-row">
+      <input id="jawaban" type="text" placeholder="" aria-label="Jawaban teka-teki">
+      <button id="cek">Cek Jawaban</button>
+    </div>
+
+    <div id="feedback" class="feedback" aria-live="polite"></div>
+  </main>
+
+  <script>
+    const input = document.getElementById('jawaban');
+    const btn = document.getElementById('cek');
+    const fb = document.getElementById('feedback');
+
+    function cekJawaban(){
+      const value = input.value.trim().toLowerCase();
+      if(value === 'gajah'){
+        fb.textContent = 'Jawaban Anda benar, hebat';
+        fb.className = 'feedback correct';
+      } else {
+        fb.textContent = 'Jawaban Anda salah, silahkan coba lagi.';
+        fb.className = 'feedback wrong';
+      }
+    }
+
+    btn.addEventListener('click', cekJawaban);
+    input.addEventListener('keydown', function(e){ if(e.key === 'Enter') cekJawaban(); });
+  </script>
+</body>
+</html>
