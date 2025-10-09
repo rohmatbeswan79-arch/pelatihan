@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Teks Rompang - Yohannes</title>
+  <style>
+    :root{
+      --light-blue:#dff4ff; /* skin soal */
+      --dark-blue:#0b3d91;  /* layer laptop */
+      --card-bg:#ffffff;    /* area isi (putih dan bersih) */
+      --accent:#2b8bd6;
+      font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    html,body{height:100%}
+    body{
+      margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--light-blue),#e6f7ff);
+    }
+    .laptop{
+      width:900px;max-width:95%;background:var(--dark-blue);border-radius:16px;padding:24px;box-shadow:0 10px 30px rgba(11,61,145,0.25);
+    }
+    .screen{
+      background:var(--light-blue);padding:20px;border-radius:10px;min-height:360px;color:#023047;
+    }
+    h1{margin:0 0 12px;font-size:20px;color:var(--dark-blue)}
+    .sentence{background:var(--card-bg);padding:18px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+    .sentence p{margin:0 0 12px;font-size:17px}
+
+    /* Input single-line, ukuran cocok dengan font, latar putih bersih */
+    input.blank{
+      width:100%;height:40px;padding:8px 10px;border-radius:6px;border:1px solid #dbeffc;background:var(--card-bg);font-size:16px;font-family:inherit;outline:none;box-sizing:border-box
+    }
+    input.blank::placeholder{color:#b9dff6}
+    input.blank:focus{box-shadow:0 0 0 3px rgba(43,139,214,0.18);border-color:var(--accent)}
+
+    .controls{display:flex;gap:10px;margin-top:16px}
+    button{cursor:pointer;padding:10px 14px;border-radius:8px;border:none;font-weight:600}
+    button.primary{background:var(--accent);color:white}
+    button.secondary{background:white;color:var(--dark-blue);border:1px solid rgba(11,61,145,0.08)}
+    button.reset{background:#f8f9fb;color:var(--dark-blue);border:1px solid rgba(0,0,0,0.05)}
+
+    .feedback{margin-top:14px;padding:10px;border-radius:8px;font-weight:700;display:inline-block}
+    .ok{background:#e6ffe9;color:#11632a}
+    .wrong{background:#fff1f1;color:#8a1d1d}
+
+    .audio-row{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+    .note{font-size:13px;color:#024b6b}
+
+    @media(max-width:560px){
+      .screen{padding:12px}
+    }
+  </style>
+</head>
+<body>
+  <div class="laptop" role="region" aria-label="Area soal teks rompang">
+    <div class="screen">
+      <h1>Teks Rompang: Perkenalan</h1>
+
+      <div class="audio-row">
+        <audio id="rekaman" preload="none">
+          <source src="https://rohmatbeswan79-arch.github.io/pelatihan/translate_tts.mp3" type="audio/mpeg">
+          Browser Anda tidak mendukung elemen audio.
+        </audio>
+        <button id="playAudio" class="secondary">Putar Audio</button>
+        <div class="note">Silakan putar rekaman terlebih dahulu sebelum mengisi teks rompang.</div>
+      </div>
+
+      <div class="sentence" aria-live="polite">
+        <p>Hello, my name is <strong>Yohannes</strong>. I'm a
+          <input class="blank" id="b1" aria-label="kosong 1" placeholder="ketik jawaban..."> at SMP Negeri 2 Biak.
+          I live in Biak, <input class="blank" id="b2" aria-label="kosong 2" placeholder="ketik jawaban...">.
+        </p>
+
+        <p>I like <input class="blank" id="b3" aria-label="kosong 3" placeholder="ketik jawaban..."> and
+           <input class="blank" id="b4" aria-label="kosong 4" placeholder="ketik jawaban...">.
+        </p>
+
+        <p>My favorite color is <input class="blank" id="b5" aria-label="kosong 5" placeholder="ketik jawaban...">.
+           My favorite food is <input class="blank" id="b6" aria-label="kosong 6" placeholder="ketik jawaban...">.
+        </p>
+
+        <p>Nice to meet you.</p>
+      </div>
+
+      <div class="controls">
+        <button id="cek" class="primary">Hasil</button>
+        <button id="reset" class="reset">Reset</button>
+      </div>
+
+      <div id="message" class="feedback" style="display:none" aria-live="assertive"></div>
+
+      <div style="margin-top:12px;font-size:13px;color:#052a4f">
+        Catatan: Area pengisian berwarna putih dan bersih. Skin soal biru muda. Layer laptop biru tua.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const audio = document.getElementById('rekaman');
+    const playBtn = document.getElementById('playAudio');
+    playBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play().catch(() => {
+          alert('Pemutaran otomatis diblokir. Silakan klik tombol play pada kontrol audio.');
+        });
+        playBtn.textContent = 'Pause Audio';
+      } else {
+        audio.pause();
+        playBtn.textContent = 'Putar Audio';
+      }
+    });
+
+    const targets = ['student','papua','swimming','reading','green','fried rice'];
+    const ids = ['b1','b2','b3','b4','b5','b6'];
+    const cek = document.getElementById('cek');
+    const reset = document.getElementById('reset');
+    const msg = document.getElementById('message');
+
+    function normalize(s){
+      return (s||'').replace(/\s+/g,' ').trim().toLowerCase();
+    }
+
+    cek.addEventListener('click', () => {
+      let allCorrect = true;
+      for (let i = 0; i < ids.length; i++) {
+        const val = document.getElementById(ids[i]).value || '';
+        const norm = normalize(val);
+        const target = targets[i];
+        if (norm !== target) { allCorrect = false; break; }
+      }
+
+      if (allCorrect) {
+        msg.textContent = 'Hebat. Jawaban anda benar';
+        msg.className = 'feedback ok';
+        msg.style.display = 'inline-block';
+      } else {
+        msg.textContent = 'astagfirullah... Jawaban anda salah, ulangiii lagiiii';
+        msg.className = 'feedback wrong';
+        msg.style.display = 'inline-block';
+      }
+    });
+
+    reset.addEventListener('click', () => {
+      ids.forEach(id => document.getElementById(id).value = '');
+      msg.style.display = 'none';
+      playBtn.textContent = 'Putar Audio';
+      try { audio.pause(); audio.currentTime = 0; } catch(e) {}
+    });
+  </script>
+</body>
+</html>
