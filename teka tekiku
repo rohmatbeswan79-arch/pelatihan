@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Teka-teki Hewan</title>
+  <style>
+    :root{
+      --bg-dark: #0b6623; /* hijau tua */
+      --skin-light: #bfecc2; /* hijau muda */
+      --card-shadow: rgba(0,0,0,0.15);
+    }
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    body{
+      background:var(--bg-dark);
+      display:flex;align-items:center;justify-content:center;padding:20px;color:#013220;
+    }
+    .container{
+      width:100%;max-width:680px;background:var(--skin-light);border-radius:12px;padding:22px;box-shadow:0 6px 18px var(--card-shadow);
+    }
+    h1{margin:0 0 8px;font-size:22px;color:#013220}
+    .meta{font-size:14px;color:#044022;margin-bottom:12px}
+    .puzzle-box{background:rgba(255,255,255,0.85);padding:18px;border-radius:10px;margin-bottom:14px}
+    .hint{font-size:18px;margin:0 0 8px}
+    .counter{font-size:13px;color:#055a2f;margin-bottom:8px}
+    textarea{
+      width:100%;min-height:90px;border-radius:8px;border:1px solid #cfded0;padding:10px;font-size:16px;resize:vertical;background:#ffffff;outline:none;box-sizing:border-box
+    }
+    .buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    button{background:#ffffff;border:1px solid #cfded0;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+    button:disabled{opacity:0.5;cursor:not-allowed}
+    .feedback{margin-top:12px;font-weight:700}
+    .correct{color:#0b6623}
+    .wrong{color:#8b0000}
+    .controls{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+    .small{font-size:13px;color:#044022}
+    @media (max-width:480px){.container{padding:14px}}
+  </style>
+</head>
+<body>
+  <div class="container" role="main">
+    <h1>Teka-teki Hewan</h1>
+    <div class="meta">Tebak nama hewan dari tiap teka-teki. Jawaban tidak sensitif huruf besar/kecil.</div>
+
+    <div class="puzzle-box">
+      <div class="counter" id="counter">Teka-teki 1 dari 5</div>
+      <p class="hint" id="hint">Saya besar, punya belalai panjang, dan bertelinga lebar. Siapakah saya?</p>
+
+      <label for="answer" class="small">Tulis jawaban Anda:</label>
+      <textarea id="answer" placeholder="" aria-label="Jawaban" autocomplete="off"></textarea>
+
+      <div class="buttons">
+        <button id="prevBtn">Previous</button>
+        <button id="nextBtn">Next</button>
+        <button id="checkBtn">Hasil</button>
+        <button id="resetBtn">Reset</button>
+      </div>
+
+      <div class="feedback" id="feedback" aria-live="polite"></div>
+    </div>
+
+    <div class="controls">
+      <div class="small">Skin teka-teki: hijau muda · Latar: hijau tua</div>
+      <div class="small">Terima kasih</div>
+    </div>
+  </div>
+
+  <script>
+    const puzzles = [
+      {q: 'Saya besar, punya belalai panjang, dan bertelinga lebar. Siapakah saya?', a: 'gajah'},
+      {q: 'Saya adalah karnivora besar bercorak belang-oranye-hitam dan hidup di hutan. Siapakah saya?', a: 'harimau'},
+      {q: 'Saya biasa ditunggangi dan berlari cepat, berkuku keras. Siapakah saya?', a: 'kuda'},
+      {q: 'Saya suka mengeong, berbulu, dan sering menjadi sahabat manusia. Siapakah saya?', a: 'kucing'},
+      {q: 'Saya setia, sering menggonggong, dan disebut sahabat manusia. Siapakah saya?', a: 'anjing'},
+    ];
+
+    let idx = 0;
+    const hintEl = document.getElementById('hint');
+    const counterEl = document.getElementById('counter');
+    const answerEl = document.getElementById('answer');
+    const feedbackEl = document.getElementById('feedback');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const checkBtn = document.getElementById('checkBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    function render(){
+      const p = puzzles[idx];
+      hintEl.textContent = p.q;
+      counterEl.textContent = `Teka-teki ${idx+1} dari ${puzzles.length}`;
+      // kosongkan textarea tapi jangan hapus jawaban sebelumnya? spec says provide textarea for answering; we'll clear when moving to next to ask fresh answer
+      answerEl.value = '';
+      feedbackEl.textContent = '';
+      prevBtn.disabled = (idx === 0);
+      nextBtn.disabled = (idx === puzzles.length -1);
+      answerEl.focus();
+    }
+
+    function checkAnswer(){
+      const user = answerEl.value.trim().toLowerCase();
+      if(user === ''){ // treat empty as wrong
+        feedbackEl.textContent = 'Maaf, jawaban Anda salah. Ulangi lagi.';
+        feedbackEl.className = 'feedback wrong';
+        return;
+      }
+      const correct = puzzles[idx].a.toLowerCase();
+      if(user === correct){
+        feedbackEl.textContent = 'Hebat. Jawaban Anda benar';
+        feedbackEl.className = 'feedback correct';
+      } else {
+        feedbackEl.textContent = 'Maaf, jawaban Anda salah. Ulangi lagi.';
+        feedbackEl.className = 'feedback wrong';
+      }
+    }
+
+    prevBtn.addEventListener('click', ()=>{ if(idx>0){ idx--; render(); }});
+    nextBtn.addEventListener('click', ()=>{ if(idx<puzzles.length-1){ idx++; render(); }});
+    checkBtn.addEventListener('click', checkAnswer);
+    resetBtn.addEventListener('click', ()=>{ answerEl.value=''; feedbackEl.textContent=''; feedbackEl.className='feedback'; answerEl.focus(); });
+
+    // allow Enter+Ctrl to check quickly if user wants
+    answerEl.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' && (e.ctrlKey || e.metaKey)){
+        e.preventDefault(); checkAnswer();
+      }
+    });
+
+    // initial render
+    render();
+  </script>
+</body>
+</html>
