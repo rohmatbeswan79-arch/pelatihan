@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Teka-teki Hewan</title>
+  <style>
+    :root{
+      --bg-dark:#0f6633; /* hijau tua */
+      --skin-light:#b7f1c9; /* hijau muda */
+      --card-radius:16px;
+      --container-width:760px;
+      --text-color:#08321f;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background:var(--bg-dark);
+      color:var(--text-color);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      box-sizing:border-box;
+    }
+
+    .wrapper{
+      width:100%;
+      max-width:var(--container-width);
+    }
+
+    .card{
+      background:var(--skin-light);
+      border-radius:var(--card-radius);
+      padding:22px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    }
+
+    h1{
+      margin:0 0 8px 0;
+      font-size:1.6rem;
+      letter-spacing:0.2px;
+    }
+
+    .riddle-box{
+      background: #ffffff77; /* sedikit transparan untuk kontras, area teks tetap putih */
+      padding:18px;
+      border-radius:12px;
+      margin-top:12px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .question{
+      font-size:1.1rem;
+      min-height:48px;
+    }
+
+    textarea.answer{
+      width:100%;
+      min-height:110px;
+      resize:vertical;
+      border-radius:8px;
+      border:1px solid #ccc;
+      padding:10px;
+      font-size:1rem;
+      background:#ffffff; /* TEKS AREA BERWARNA PUTIH */
+      color:#000;
+      box-sizing:border-box;
+    }
+
+    .controls{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    button{
+      padding:10px 14px;
+      border-radius:10px;
+      border:0;
+      cursor:pointer;
+      font-weight:600;
+      box-shadow:0 3px 6px rgba(0,0,0,0.12);
+    }
+
+    button.primary{ background:#056b3b; color:#fff; }
+    button.secondary{ background:#ffffff; color:#056b3b; border:1px solid rgba(5,107,59,0.15); }
+    button.ghost{ background:transparent; color:var(--text-color); border:1px solid rgba(0,0,0,0.06); }
+
+    .feedback{
+      min-height:28px;
+      font-weight:700;
+      margin-top:6px;
+    }
+
+    .meta{
+      margin-top:12px;
+      font-size:0.9rem;
+      opacity:0.95;
+    }
+
+    .footer-note{ text-align:right; margin-top:8px; font-size:0.85rem; opacity:0.9; }
+
+    @media (max-width:520px){
+      .card{ padding:14px; }
+      textarea.answer{ min-height:90px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="card" role="application" aria-label="Teka-teki hewan">
+      <h1>Teka-teki Hewan</h1>
+      <div class="riddle-box" id="riddleBox">
+        <div class="question" id="question">Memuat teka-teki...</div>
+
+        <label for="answer" style="font-weight:600;">Tebakkan jawaban Anda:</label>
+        <textarea id="answer" class="answer" placeholder="" aria-label="Jawaban" ></textarea>
+
+        <div class="controls">
+          <button id="prevBtn" class="ghost">Previous</button>
+          <button id="nextBtn" class="ghost">Next</button>
+          <div style="flex:1"></div>
+          <button id="resetBtn" class="secondary">Reset</button>
+          <button id="checkBtn" class="primary">Hasil</button>
+        </div>
+
+        <div class="feedback" id="feedback" aria-live="polite"></div>
+        <div class="meta">Petunjuk: Ketik jawaban Anda di kotak putih. Huruf besar / kecil tidak berpengaruh.</div>
+      </div>
+
+      <div class="footer-note">Terima kasih</div>
+    </div>
+  </div>
+
+  <script>
+    const riddles = [
+      {q: '1. Hewan besar yang berhidung panjang, bertaring kecil, dan kulit tebal. Siapakah aku?', a: 'gajah'},
+      {q: '2. Hewan pemangsa yang merupakan raja hutan. Siapakah aku?', a: 'harimau'},
+      {q: '3. Hewan berkaki empat yang sering ditunggangi manusia dan suka berlari cepat. Siapakah aku?', a: 'kuda'},
+      {q: '4. Hewan peliharaan yang suka mengeong dan menangkap tikus. Siapakah aku?', a: 'kucing'},
+      {q: '5. Hewan setia yang sering dijadikan sahabat manusia dan suka menggonggong. Siapakah aku?', a: 'anjing'}
+    ];
+
+    let idx = 0;
+
+    const questionEl = document.getElementById('question');
+    const answerEl = document.getElementById('answer');
+    const feedbackEl = document.getElementById('feedback');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const checkBtn = document.getElementById('checkBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    function render(){
+      const current = riddles[idx];
+      questionEl.textContent = current.q;
+      answerEl.value = ''; // selalu kosongkan ketika pindah teka-teki
+      feedbackEl.textContent = '';
+
+      // tombol previous/next
+      prevBtn.disabled = (idx === 0);
+      nextBtn.disabled = (idx === riddles.length - 1);
+
+      prevBtn.style.opacity = prevBtn.disabled ? 0.5 : 1;
+      nextBtn.style.opacity = nextBtn.disabled ? 0.5 : 1;
+    }
+
+    function checkAnswer(){
+      const user = (answerEl.value || '').trim().toLowerCase();
+      const correct = riddles[idx].a.toLowerCase();
+      if(user === correct){
+        feedbackEl.textContent = 'Hebat. Jawaban Anda benar';
+      } else {
+        feedbackEl.textContent = 'Maaf, jawaban Anda salah. Ulangi lagi.';
+      }
+    }
+
+    prevBtn.addEventListener('click', () => {
+      if(idx > 0) idx--;
+      render();
+      answerEl.focus();
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if(idx < riddles.length - 1) idx++;
+      render();
+      answerEl.focus();
+    });
+
+    checkBtn.addEventListener('click', () => {
+      checkAnswer();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      answerEl.value = '';
+      feedbackEl.textContent = '';
+      answerEl.focus();
+    });
+
+    // Enter key does NOT submit the page; allow Ctrl+Enter to check as shortcut
+    answerEl.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' && (e.ctrlKey || e.metaKey)){
+        e.preventDefault();
+        checkAnswer();
+      }
+    });
+
+    // render pertama
+    render();
+  </script>
+</body>
+</html>
