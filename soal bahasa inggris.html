@@ -3,149 +3,131 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Teks Rompang - Yohannes</title>
+  <title>Teks Rompang - Listening</title>
   <style>
     :root{
-      --light-blue:#dff4ff; /* skin soal */
-      --dark-blue:#0b3d91;  /* layer laptop */
-      --card-bg:#ffffff;    /* area isi (putih dan bersih) */
-      --accent:#2b8bd6;
-      font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      --blue-dark: #0a4a7a; /* layer laptop */
+      --blue-light: #cfeeff; /* skin soal */
     }
-    html,body{height:100%}
-    body{
-      margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--light-blue),#e6f7ff);
-    }
-    .laptop{
-      width:900px;max-width:95%;background:var(--dark-blue);border-radius:16px;padding:24px;box-shadow:0 10px 30px rgba(11,61,145,0.25);
-    }
-    .screen{
-      background:var(--light-blue);padding:20px;border-radius:10px;min-height:360px;color:#023047;
-    }
-    h1{margin:0 0 12px;font-size:20px;color:var(--dark-blue)}
-    .sentence{background:var(--card-bg);padding:18px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.06)}
-    .sentence p{margin:0 0 12px;font-size:17px}
-
-    /* Input single-line, ukuran cocok dengan font, latar putih bersih */
-    input.blank{
-      width:100%;height:40px;padding:8px 10px;border-radius:6px;border:1px solid #dbeffc;background:var(--card-bg);font-size:16px;font-family:inherit;outline:none;box-sizing:border-box
-    }
-    input.blank::placeholder{color:#b9dff6}
-    input.blank:focus{box-shadow:0 0 0 3px rgba(43,139,214,0.18);border-color:var(--accent)}
-
-    .controls{display:flex;gap:10px;margin-top:16px}
-    button{cursor:pointer;padding:10px 14px;border-radius:8px;border:none;font-weight:600}
-    button.primary{background:var(--accent);color:white}
-    button.secondary{background:white;color:var(--dark-blue);border:1px solid rgba(11,61,145,0.08)}
-    button.reset{background:#f8f9fb;color:var(--dark-blue);border:1px solid rgba(0,0,0,0.05)}
-
-    .feedback{margin-top:14px;padding:10px;border-radius:8px;font-weight:700;display:inline-block}
-    .ok{background:#e6ffe9;color:#11632a}
-    .wrong{background:#fff1f1;color:#8a1d1d}
-
-    .audio-row{display:flex;align-items:center;gap:12px;margin-bottom:6px}
-    .note{font-size:13px;color:#024b6b}
-
-    @media(max-width:560px){
-      .screen{padding:12px}
-    }
+    html,body{height:100%;margin:0;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;}
+    body{background:var(--blue-dark);display:flex;align-items:center;justify-content:center;padding:20px;color:#04283f}
+    .card{width:100%;max-width:880px;background:var(--blue-light);border-radius:12px;padding:20px;box-shadow:0 8px 20px rgba(0,0,0,0.25)}
+    h1{margin:0 0 8px 0;font-size:20px}
+    p.lead{margin:0 0 12px 0;color:#033354}
+    .audio-wrap{padding:12px;background:rgba(255,255,255,0.85);border-radius:8px;margin-bottom:12px}
+    .soal{background:rgba(255,255,255,0.9);padding:14px;border-radius:8px;margin-bottom:12px}
+    label{display:block;font-weight:700;margin-bottom:6px}
+    textarea{width:100%;min-height:48px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);padding:10px;resize:none;background:#ffffff}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .controls{display:flex;gap:8px;margin-top:12px}
+    button{background:var(--blue-dark);color:white;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:700}
+    button.secondary{background:transparent;color:#04283f;border:2px solid rgba(4,40,63,0.12)}
+    .feedback{margin-top:12px;font-weight:800;min-height:28px}
+    .note{font-size:13px;color:#043a57;margin-top:8px}
+    @media (max-width:700px){.grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <div class="laptop" role="region" aria-label="Area soal teks rompang">
-    <div class="screen">
-      <h1>Teks Rompang: Perkenalan</h1>
+  <main class="card" role="main">
+    <h1>Teks Rompang (Listening)</h1>
+    <p class="lead">Silakan putar rekaman terlebih dahulu, lalu isi bagian yang kosong (1–6).</p>
 
-      <div class="audio-row">
-        <audio id="rekaman" preload="none">
-          <source src="https://rohmatbeswan79-arch.github.io/pelatihan/translate_tts.mp3" type="audio/mpeg">
-          Browser Anda tidak mendukung elemen audio.
-        </audio>
-        <button id="playAudio" class="secondary">Putar Audio</button>
-        <div class="note">Silakan putar rekaman terlebih dahulu sebelum mengisi teks rompang.</div>
-      </div>
-
-      <div class="sentence" aria-live="polite">
-        <p>Hello, my name is <strong>Yohannes</strong>. I'm a
-          <input class="blank" id="b1" aria-label="kosong 1" placeholder="ketik jawaban..."> at SMP Negeri 2 Biak.
-          I live in Biak, <input class="blank" id="b2" aria-label="kosong 2" placeholder="ketik jawaban...">.
-        </p>
-
-        <p>I like <input class="blank" id="b3" aria-label="kosong 3" placeholder="ketik jawaban..."> and
-           <input class="blank" id="b4" aria-label="kosong 4" placeholder="ketik jawaban...">.
-        </p>
-
-        <p>My favorite color is <input class="blank" id="b5" aria-label="kosong 5" placeholder="ketik jawaban...">.
-           My favorite food is <input class="blank" id="b6" aria-label="kosong 6" placeholder="ketik jawaban...">.
-        </p>
-
-        <p>Nice to meet you.</p>
-      </div>
-
-      <div class="controls">
-        <button id="cek" class="primary">Hasil</button>
-        <button id="reset" class="reset">Reset</button>
-      </div>
-
-      <div id="message" class="feedback" style="display:none" aria-live="assertive"></div>
-
-      <div style="margin-top:12px;font-size:13px;color:#052a4f">
-        Catatan: Area pengisian berwarna putih dan bersih. Skin soal biru muda. Layer laptop biru tua.
-      </div>
+    <div class="audio-wrap">
+      <audio id="player" controls preload="none">
+        <source src="https://rohmatbeswan79-arch.github.io/pelatihan/translate_tts%20(2).mp3" type="audio/mpeg">
+        Browser Anda tidak mendukung pemutar audio.
+      </audio>
+      <div class="note">Harap peserta didik <strong>memutar</strong> rekaman sebelum mengisi jawaban.</div>
     </div>
-  </div>
+
+    <div class="soal">
+      <p>My name is Rohmat, and I was <strong>[1]</strong> in Kudus in <strong>[2]</strong>. I live in a small <strong>[3]</strong> called undaan, Kudus Regency. I'm <strong>[4]</strong> and have <strong>[5]</strong> children. I work at MTs NU Maslakul Falah. My <strong>[6]</strong> is reading.</p>
+
+      <form id="form">
+        <div class="grid">
+          <div>
+            <label for="b1">[1]</label>
+            <textarea id="b1" placeholder="" aria-label="jawaban 1"></textarea>
+          </div>
+          <div>
+            <label for="b2">[2]</label>
+            <textarea id="b2" placeholder="" aria-label="jawaban 2"></textarea>
+          </div>
+          <div>
+            <label for="b3">[3]</label>
+            <textarea id="b3" placeholder="" aria-label="jawaban 3"></textarea>
+          </div>
+          <div>
+            <label for="b4">[4]</label>
+            <textarea id="b4" placeholder="" aria-label="jawaban 4"></textarea>
+          </div>
+          <div>
+            <label for="b5">[5]</label>
+            <textarea id="b5" placeholder="" aria-label="jawaban 5"></textarea>
+          </div>
+          <div>
+            <label for="b6">[6]</label>
+            <textarea id="b6" placeholder="" aria-label="jawaban 6"></textarea>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button type="button" id="cek">Hasil</button>
+          <button type="button" id="reset" class="secondary">Reset</button>
+        </div>
+
+        <div class="feedback" id="feedback" aria-live="polite"></div>
+      </form>
+    </div>
+
+    <div style="font-size:13px;color:#043a57">Terima kasih.</div>
+  </main>
 
   <script>
-    const audio = document.getElementById('rekaman');
-    const playBtn = document.getElementById('playAudio');
-    playBtn.addEventListener('click', () => {
-      if (audio.paused) {
-        audio.play().catch(() => {
-          alert('Pemutaran otomatis diblokir. Silakan klik tombol play pada kontrol audio.');
-        });
-        playBtn.textContent = 'Pause Audio';
-      } else {
-        audio.pause();
-        playBtn.textContent = 'Putar Audio';
-      }
-    });
-
-    const targets = ['student','papua','swimming','reading','green','fried rice'];
-    const ids = ['b1','b2','b3','b4','b5','b6'];
+    const correct = ['born','1984','village','married','two','pasion'];
+    const player = document.getElementById('player');
+    const inputs = ['b1','b2','b3','b4','b5','b6'].map(id=>document.getElementById(id));
     const cek = document.getElementById('cek');
     const reset = document.getElementById('reset');
-    const msg = document.getElementById('message');
+    const feedback = document.getElementById('feedback');
 
-    function normalize(s){
-      return (s||'').replace(/\s+/g,' ').trim().toLowerCase();
-    }
+    let played = false;
+    // tandai ketika audio diputar minimal sekali
+    player.addEventListener('play', ()=>{ played = true; });
 
-    cek.addEventListener('click', () => {
-      let allCorrect = true;
-      for (let i = 0; i < ids.length; i++) {
-        const val = document.getElementById(ids[i]).value || '';
-        const norm = normalize(val);
-        const target = targets[i];
-        if (norm !== target) { allCorrect = false; break; }
+    function normalize(s){ return s.trim().toLowerCase(); }
+
+    cek.addEventListener('click', ()=>{
+      if(!played){
+        feedback.textContent = 'Harap putar rekaman terlebih dahulu sebelum menjawab.';
+        return;
       }
 
-      if (allCorrect) {
-        msg.textContent = 'Hebat. Jawaban anda benar';
-        msg.className = 'feedback ok';
-        msg.style.display = 'inline-block';
+      const answers = inputs.map(inp => normalize(inp.value));
+      let ok = true;
+      for(let i=0;i<correct.length;i++){
+        if(answers[i] !== correct[i]){ ok = false; break; }
+      }
+
+      if(ok){
+        feedback.textContent = 'Hebat. Jawaban anda benar';
       } else {
-        msg.textContent = 'astagfirullah... Jawaban anda salah, ulangiii lagiiii';
-        msg.className = 'feedback wrong';
-        msg.style.display = 'inline-block';
+        feedback.textContent = 'Maaf. Jawaban anda salah, ulangi lagi';
       }
     });
 
-    reset.addEventListener('click', () => {
-      ids.forEach(id => document.getElementById(id).value = '');
-      msg.style.display = 'none';
-      playBtn.textContent = 'Putar Audio';
-      try { audio.pause(); audio.currentTime = 0; } catch(e) {}
+    reset.addEventListener('click', ()=>{
+      inputs.forEach(i=> i.value = '');
+      feedback.textContent = '';
+      // reset played agar siswa harus putar lagi
+      played = false;
+      // jeda kecil lalu pause dan reset posisi audio
+      try{ player.pause(); player.currentTime = 0; }catch(e){}
+      inputs[0].focus();
     });
+
+    // Pastikan textarea tampil bersih tanpa tulisan (placeholder kosong)
+    inputs.forEach(i=>{ i.value = ''; });
   </script>
 </body>
 </html>
