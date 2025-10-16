@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Teka-teki Hewan</title>
+  <style>
+    :root{
+      --green-dark:#0b5d3b; /* layar */
+      --green-light:#c8f5d6; /* skin teka-teki */
+    }
+    html,body{height:100%;margin:0;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;}
+    body{
+      background:var(--green-dark);
+      display:flex;align-items:center;justify-content:center;padding:24px;
+    }
+    .card{
+      width:100%;max-width:760px;background:var(--green-light);border-radius:12px;padding:20px;box-shadow:0 6px 18px rgba(0,0,0,0.2);
+      color:#08311f;
+    }
+    .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    h1{margin:0;font-size:20px}
+    .img-wrap{display:flex;align-items:center;justify-content:center;padding:10px;background:rgba(255,255,255,0.6);border-radius:8px;margin-bottom:12px}
+    img{max-width:100%;height:320px;object-fit:contain;border-radius:6px}
+
+    label{display:block;margin-bottom:6px;font-weight:600}
+    textarea{width:100%;height:70px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);padding:10px;resize:none;background:#ffffff}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    button{background:#0b5d3b;color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:600}
+    button.secondary{background:transparent;color:#08311f;border:2px solid rgba(8,49,31,0.12)}
+    button:active{transform:translateY(1px)}
+    .feedback{margin-top:12px;font-weight:700;min-height:28px}
+    .nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+    .meta{font-size:13px;color:rgba(8,49,31,0.8)}
+
+    @media (max-width:520px){img{height:220px}}
+  </style>
+</head>
+<body>
+  <main class="card" role="application" aria-label="Teka-teki hewan">
+    <div class="header">
+      <h1>Teka-teki Hewan - Tebak Nama Hewannya</h1>
+      <div class="meta">Soal <span id="current">1</span> / <span id="total">5</span></div>
+    </div>
+
+    <div class="img-wrap">
+      <img id="puzzleImage" src="" alt="Gambar teka-teki hewan" />
+    </div>
+
+    <div>
+      <label for="answer">Tulis jawaban di bawah ini:</label>
+      <textarea id="answer" aria-label="Area jawaban" placeholder="" spellcheck="false"></textarea>
+    </div>
+
+    <div class="controls">
+      <button id="hasilBtn">Hasil</button>
+      <button id="resetBtn" class="secondary">Reset</button>
+      <button id="prevBtn" class="secondary">Previous</button>
+      <button id="nextBtn">Next</button>
+    </div>
+
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+
+    <div class="nav">
+      <div style="font-size:13px;color:rgba(8,49,31,0.9)">Petunjuk: Ketik jawaban tanpa mempedulikan huruf besar/kecil.</div>
+      <div style="font-size:12px;color:rgba(8,49,31,0.7)">Terima kasih</div>
+    </div>
+  </main>
+
+  <script>
+    const puzzles = [
+      {img: 'https://rohmatbeswan79-arch.github.io/pelatihan/anjing.jfif', answer: 'anjing'},
+      {img: 'https://rohmatbeswan79-arch.github.io/pelatihan/gajah.png', answer: 'gajah'},
+      {img: 'https://rohmatbeswan79-arch.github.io/pelatihan/harimau.png', answer: 'harimau'},
+      {img: 'https://rohmatbeswan79-arch.github.io/pelatihan/kucing.jfif', answer: 'kucing'},
+      {img: 'https://rohmatbeswan79-arch.github.io/pelatihan/kuda.jfif', answer: 'kuda'}
+    ];
+
+    const totalEl = document.getElementById('total');
+    const currentEl = document.getElementById('current');
+    const imgEl = document.getElementById('puzzleImage');
+    const answerEl = document.getElementById('answer');
+    const feedbackEl = document.getElementById('feedback');
+
+    const hasilBtn = document.getElementById('hasilBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    let idx = 0;
+
+    function render(){
+      const p = puzzles[idx];
+      imgEl.src = p.img;
+      imgEl.alt = `Gambar teka-teki ${idx+1}`;
+      currentEl.textContent = idx+1;
+      totalEl.textContent = puzzles.length;
+      answerEl.value = '';
+      feedbackEl.textContent = '';
+      answerEl.focus();
+    }
+
+    function check(){
+      const user = answerEl.value.trim().toLowerCase();
+      const correct = puzzles[idx].answer.toLowerCase();
+      if(user === correct){
+        feedbackEl.textContent = 'Hebat. Jawaban Anda benar';
+      } else {
+        feedbackEl.textContent = 'Maaf, jawaban Anda salah. Ulangi lagi.';
+      }
+    }
+
+    hasilBtn.addEventListener('click', check);
+    resetBtn.addEventListener('click', ()=>{
+      answerEl.value = '';
+      feedbackEl.textContent = '';
+      answerEl.focus();
+    });
+
+    nextBtn.addEventListener('click', ()=>{
+      if(idx < puzzles.length - 1) idx++;
+      else idx = 0; // kembali ke awal
+      render();
+    });
+
+    prevBtn.addEventListener('click', ()=>{
+      if(idx > 0) idx--;
+      else idx = puzzles.length - 1;
+      render();
+    });
+
+    // submit dengan Enter (Ctrl+Enter agar tidak mengganggu penulisan baru)
+    answerEl.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' && e.ctrlKey){
+        e.preventDefault();
+        check();
+      }
+    });
+
+    // inisialisasi
+    render();
+  </script>
+</body>
+</html>
